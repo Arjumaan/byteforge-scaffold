@@ -6,8 +6,16 @@ import { Jobs } from './pages/Jobs';
 import { Findings } from './pages/Findings';
 import { Login } from './pages/Login';
 
+import { useState, useEffect } from 'react';
+
 function App() {
-  const token = localStorage.getItem('token');
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+
+  useEffect(() => {
+    const handleStorage = () => setToken(localStorage.getItem('token'));
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   return (
     <Routes>
