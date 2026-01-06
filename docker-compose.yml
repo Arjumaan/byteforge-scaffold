@@ -1,0 +1,71 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: appsecret
+      POSTGRES_DB: pentest
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d pentest"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: ./backend
+    command: [ "sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload" ]
+    environment:
+      PYTHONPATH: /app
+      DATABASE_URL: postgresql+asyncpg://appuser:appsecret@db:5432/pentest
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: "arjumaan"
+      JWT_ALG: HS256
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+
+  worker:
+    build: ./backend
+    command: [ "celery", "-A", "app.worker.celery_app", "worker", "-l", "info" ]
+    environment:
+      PYTHONPATH: /app
+      DATABASE_URL: postgresql+asyncpg://appuser:appsecret@db:5432/pentest
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: "change-me"
+      JWT_ALG: HS256
+    depends_on:
+      - api
+      - redis
+      - db
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    command: [ "npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173" ]
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "5173:5173"
+
+volumes:
+  db_data:
