@@ -1,19 +1,25 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { ShieldAlert, Info, AlertTriangle, Bug } from 'lucide-react';
+import api from '../lib/api';
+import { ShieldAlert, Info, AlertTriangle, Bug, Code2, X, Sparkles } from 'lucide-react';
 
-const api = axios.create({ baseURL: 'http://localhost:8000' });
+interface Finding {
+    id: number;
+    title: string;
+    severity: string;
+    cwe?: string;
+    description?: string;
+}
 
 export function Findings() {
-    const token = localStorage.getItem('token') || '';
+    const [selectedRemediation, setSelectedRemediation] = useState<Finding | null>(null);
 
-    const { data: findings, isLoading } = useQuery({
-        queryKey: ['findings', token],
+    const { data: findings, isLoading } = useQuery<Finding[]>({
+        queryKey: ['findings'],
         queryFn: async () => {
-            const res = await api.get('/findings/', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await api.get('/findings/');
             return res.data;
         },
-        enabled: !!token
     });
 
     const getSeverityColor = (sev: string) => {
@@ -24,6 +30,44 @@ export function Findings() {
             case 'low': return '#34d399';
             default: return 'var(--text-muted)';
         }
+    };
+
+    const getAiRemediation = (finding: Finding) => {
+        // Simulation of AI-generated patch
+        const lowerTitle = finding.title.toLowerCase();
+
+        if (lowerTitle.includes('xss') || lowerTitle.includes('script')) {
+            return `// ByteForge AI Suggestion for XSS (React)
+// VULNERABLE: <div dangerouslySetInnerHTML={{ __html: userInput }} />
+
+// SECURE FIX: Use textContent or a sanitizer library
+import DOMPurify from 'dompurify';
+
+const SecureComponent = ({ userInput }) => {
+    const clean = DOMPurify.sanitize(userInput);
+    
+    // SAFE approach
+    return <div dangerouslySetInnerHTML={{ __html: clean }} />;
+};`;
+        }
+
+        if (lowerTitle.includes('sql') || lowerTitle.includes('injection')) {
+            return `# ByteForge AI Suggestion for SQL Injection (Python/SQLAlchemy)
+# VULNERABLE: cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
+
+# SECURE FIX: Use parameterized queries
+stmt = select(User).where(User.id == user_id)
+result = session.execute(stmt)`;
+        }
+
+        return `// ByteForge AI Suggestion
+// Analyzing patch strategies for ${finding.title}...
+// Recommended: Review input validation and output encoding.
+
+function secureFunction(input) {
+  if (!isValid(input)) throw new Error("Invalid Input");
+  return encodeHTML(input);
+}`;
     };
 
     return (
@@ -57,12 +101,69 @@ export function Findings() {
                             Potential {f.title.toLowerCase()} vulnerability found via automated scanning.
                         </p>
                         <div style={{ display: 'flex', gap: 12 }}>
-                            <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>Details</button>
-                            <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>Evidence</button>
+                            <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.875rem', flex: 1 }}>Details</button>
+                            <button
+                                className="btn-primary"
+                                style={{ padding: '8px 16px', fontSize: '0.875rem', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                                onClick={() => setSelectedRemediation(f)}
+                            >
+                                <Sparkles size={14} />
+                                <span>AI Fix</span>
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* AI Remediation Modal */}
+            {selectedRemediation && (
+                <div style={{
+                    position: 'fixed', inset: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)',
+                    zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }} onClick={() => setSelectedRemediation(null)}>
+                    <div style={{
+                        width: '80%', maxWidth: '800px', background: 'var(--bg-card)',
+                        borderRadius: '12px', border: '1px solid var(--border-color)',
+                        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+                    }} onClick={e => e.stopPropagation()}>
+                        <div style={{
+                            padding: '24px', borderBottom: '1px solid var(--border-color)',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            background: 'rgba(255,255,255,0.02)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{ padding: 8, background: 'linear-gradient(135deg, #6366f1, #a855f7)', borderRadius: 8, color: 'white' }}>
+                                    <Sparkles size={20} />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0 }}>AI Remediation Suggestion</h3>
+                                    <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Auto-generated fix for {selectedRemediation.title}</span>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedRemediation(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div style={{ padding: '24px', background: '#0f172a' }}>
+                            <div style={{
+                                background: '#1e293b', borderRadius: '8px', padding: '16px',
+                                fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.6',
+                                border: '1px solid #334155', color: '#e2e8f0', overflowX: 'auto'
+                            }}>
+                                <pre style={{ margin: 0 }}>{getAiRemediation(selectedRemediation)}</pre>
+                            </div>
+                        </div>
+
+                        <div style={{ padding: '24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                            <button className="btn-secondary" onClick={() => setSelectedRemediation(null)}>Dismiss</button>
+                            <button className="btn-primary" onClick={() => alert("Copied to clipboard!")}>Copy Code</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

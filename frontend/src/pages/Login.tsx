@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { Zap, Shield, Mail, Lock } from 'lucide-react';
-
-const api = axios.create({ baseURL: 'http://localhost:8000' });
 
 export function Login() {
     const [email, setEmail] = useState('');
@@ -18,6 +16,8 @@ export function Login() {
             params.append('password', password);
             const res = await api.post('/auth/token', params);
             localStorage.setItem('token', res.data.access_token);
+            // Trigger storage listener in the same window
+            window.dispatchEvent(new Event('storage'));
         },
         onSuccess: () => navigate('/')
     });
@@ -25,6 +25,18 @@ export function Login() {
     const register = useMutation({
         mutationFn: async () => {
             await api.post('/auth/register', { email, password });
+            // After successful registration, automatically log in
+            const params = new URLSearchParams();
+            params.append('username', email);
+            params.append('password', password);
+            const res = await api.post('/auth/token', params);
+            localStorage.setItem('token', res.data.access_token);
+            window.dispatchEvent(new Event('storage'));
+        },
+        onSuccess: () => navigate('/'),
+        onError: (error: any) => {
+            const message = error.response?.data?.detail || error.message || 'Registration failed. Check if backend is running.';
+            alert(message);
         }
     });
 

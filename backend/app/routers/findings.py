@@ -10,12 +10,17 @@ router = APIRouter()
 @router.get("/")
 async def list_findings(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     res = await db.exec(select(models.Finding))
-    return res.all()
+    findings = res.all()
+    for f in findings:
+        f.decrypt_fields()
+    return findings
 
 @router.post("/")
 async def create_finding(body: FindingCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     finding = models.Finding(**body.dict())
+    finding.encrypt_fields()
     db.add(finding)
     await db.commit()
     await db.refresh(finding)
+    finding.decrypt_fields()
     return finding

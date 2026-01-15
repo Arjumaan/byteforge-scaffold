@@ -1,0 +1,3 @@
+#!/bin/bash
+export PYTHONPATH=$(pwd)/backend
+python3 byteforge.py "$@"

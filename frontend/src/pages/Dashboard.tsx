@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { Target, Zap, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { LucideIcon, Target, Zap, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 export function Dashboard() {
-    const stats = [
+    const stats: { label: string; value: string; icon: LucideIcon; trend: string }[] = [
         { label: 'Active Targets', value: '12', icon: Target, trend: '+2 this week' },
         { label: 'Jobs Running', value: '4', icon: Zap, trend: 'High load' },
         { label: 'Vulnerabilities', value: '87', icon: ShieldAlert, trend: '12 Critical' },
@@ -56,9 +56,9 @@ export function Dashboard() {
                 <div className="card glass-panel">
                     <h3 style={{ marginBottom: 20 }}>Quick Actions</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        <button className="btn-primary">New Target Scan</button>
-                        <button className="btn-secondary">Export Latest Report</button>
-                        <button className="btn-secondary">User Settings</button>
+                        <button className="btn-primary" onClick={() => window.location.href = '/targets'}>New Target Scan</button>
+                        <button className="btn-secondary" onClick={() => window.location.href = '/reports'}>Export Latest Report</button>
+                        <button className="btn-secondary" onClick={() => window.location.href = '/settings'}>User Settings</button>
                     </div>
                 </div>
             </div>

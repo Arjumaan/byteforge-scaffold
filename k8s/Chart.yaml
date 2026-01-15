@@ -1,0 +1,9 @@
+apiVersion: v2
+name: byteforge
+description: A Helm chart for deploying ByteForge Security Platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: ByteForge Team
+    email: admin@byteforge.io

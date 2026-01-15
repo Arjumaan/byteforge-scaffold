@@ -1,33 +1,47 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { Target, Globe, Plus, Search, ExternalLink } from 'lucide-react';
+import api from '../lib/api';
+import { Target, Globe, Plus, Search, ExternalLink, Play } from 'lucide-react';
 
-const api = axios.create({ baseURL: 'http://localhost:8000' });
+interface Target {
+    id: number;
+    name: string;
+    scope: string;
+}
 
 export function Targets() {
     const qc = useQueryClient();
-    const token = localStorage.getItem('token') || '';
     const [name, setName] = useState('');
     const [scope, setScope] = useState('');
 
-    const { data: targets, isLoading } = useQuery({
-        queryKey: ['targets', token],
+    const { data: targets, isLoading } = useQuery<Target[]>({
+        queryKey: ['targets'],
         queryFn: async () => {
-            const res = await api.get('/targets/', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await api.get('/targets/');
             return res.data;
         },
-        enabled: !!token
     });
 
     const createTarget = useMutation({
         mutationFn: async () => {
-            await api.post('/targets/', { name, scope }, { headers: { Authorization: `Bearer ${token}` } });
+            await api.post('/targets/', { name, scope });
         },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['targets'] });
             setName('');
             setScope('');
+        }
+    });
+
+    const runScan = useMutation({
+        mutationFn: async ({ targetId, kind }: { targetId: number; kind: string }) => {
+            await api.post('/jobs/', { target_id: targetId, kind });
+        },
+        onSuccess: () => {
+            alert("Full Scan (Recon, Crawl, Nuclei) started successfully! Check 'Jobs' page for progress.");
+        },
+        onError: () => {
+            alert("Failed to start scan.");
         }
     });
 
@@ -61,13 +75,24 @@ export function Targets() {
                                         <Globe size={24} color="var(--accent-primary)" />
                                     </div>
                                     <div>
-                                        <h4 style={{ fontSize: '1.1rem' }}>{t.name}</h4>
+                                        <h4 style={{ fontSize: '1.1rem' }}>{t.name === '[ENCRYPTION_ERROR]' ? 'Encrypted Target' : t.name}</h4>
                                         <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t.scope}</p>
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: 12 }}>
-                                    <div className="badge badge-info">Active</div>
-                                    <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)' }}>
+                                    <button
+                                        className="btn-primary"
+                                        style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'flex', gap: 8, alignItems: 'center' }}
+                                        onClick={() => runScan.mutate({ targetId: t.id, kind: 'full_scan' })}
+                                        disabled={runScan.isPending}
+                                    >
+                                        <Play size={14} />
+                                        Full Scan
+                                    </button>
+                                    <button
+                                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)' }}
+                                        onClick={() => window.open(t.name.startsWith('http') ? t.name : `https://${t.name}`, '_blank')}
+                                    >
                                         <ExternalLink size={20} />
                                     </button>
                                 </div>

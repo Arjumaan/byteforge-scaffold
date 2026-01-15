@@ -1,12 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Target, Zap, FileText, Settings, ShieldAlert } from 'lucide-react';
+import { LucideIcon, LayoutDashboard, Target, Zap, FileText, Settings, ShieldAlert, Cpu, FolderOpen, Network } from 'lucide-react';
 
 export function Sidebar() {
-    const links = [
+    const links: { title: string; icon: LucideIcon; path: string }[] = [
         { title: 'Dashboard', icon: LayoutDashboard, path: '/' },
+        { title: 'Forge-Agent', icon: Cpu, path: '/ai' },
         { title: 'Targets', icon: Target, path: '/targets' },
         { title: 'Jobs', icon: Zap, path: '/jobs' },
         { title: 'Findings', icon: ShieldAlert, path: '/findings' },
+        { title: 'Evidence', icon: FolderOpen, path: '/evidence' },
+        { title: 'Network Map', icon: Network, path: '/network' },
         { title: 'Reports', icon: FileText, path: '/reports' },
         { title: 'Settings', icon: Settings, path: '/settings' },
     ];
@@ -24,7 +27,7 @@ export function Sidebar() {
                     <NavLink
                         key={link.path}
                         to={link.path}
-                        className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                        className={({ isActive }: { isActive: boolean }) => `nav-link ${isActive ? 'active' : ''}`}
                     >
                         <link.icon size={20} />
                         <span>{link.title}</span>

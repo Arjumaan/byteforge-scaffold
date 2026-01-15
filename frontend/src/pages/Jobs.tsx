@@ -1,19 +1,25 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { Zap, Clock, Terminal, CheckCircle2, AlertCircle } from 'lucide-react';
+import api from '../lib/api';
+import { Zap, Terminal, X } from 'lucide-react';
 
-const api = axios.create({ baseURL: 'http://localhost:8000' });
+interface Job {
+    id: number;
+    kind: string;
+    status: string;
+    log: string;
+    created_at: string;
+}
 
 export function Jobs() {
-    const token = localStorage.getItem('token') || '';
+    const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-    const { data: jobs, isLoading } = useQuery({
-        queryKey: ['jobs', token],
+    const { data: jobs, isLoading } = useQuery<Job[]>({
+        queryKey: ['jobs'],
         queryFn: async () => {
-            const res = await api.get('/jobs/', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await api.get('/jobs/');
             return res.data;
         },
-        enabled: !!token
     });
 
     const getStatusBadge = (status: string) => {
@@ -60,7 +66,10 @@ export function Jobs() {
                                 <td style={{ padding: '16px 24px' }}>{getStatusBadge(job.status)}</td>
                                 <td style={{ padding: '16px 24px', color: 'var(--text-muted)' }}>{new Date(job.created_at).toLocaleString()}</td>
                                 <td style={{ padding: '16px 24px' }}>
-                                    <button style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <button
+                                        onClick={() => setSelectedJob(job)}
+                                        style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: 4 }}
+                                    >
                                         <Terminal size={14} />
                                         <span>View Log</span>
                                     </button>
@@ -70,6 +79,63 @@ export function Jobs() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Live Terminal Modal */}
+            {selectedJob && (
+                <div style={{
+                    position: 'fixed', inset: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)',
+                    zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }} onClick={() => setSelectedJob(null)}>
+                    <div style={{
+                        width: '80%', height: '80%', background: '#0f172a',
+                        borderRadius: '12px', border: '1px solid #334155',
+                        display: 'flex', flexDirection: 'column', overflow: 'hidden'
+                    }} onClick={e => e.stopPropagation()}>
+                        <div style={{
+                            padding: '16px 24px', borderBottom: '1px solid #334155',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            background: '#1e293b'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <Terminal size={18} color="#22c55e" />
+                                <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>job_{selectedJob.id}.log</span>
+                            </div>
+                            <button onClick={() => setSelectedJob(null)} style={{ background: 'none', border: 'none', color: '#94a3b8' }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div style={{
+                            padding: '24px', overflowY: 'auto', flex: 1,
+                            fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.6',
+                            color: '#e2e8f0', background: '#0f172a'
+                        }}>
+                            <div style={{ color: '#64748b' }}># Execution log for Job #{selectedJob.id} ({selectedJob.kind})</div>
+                            <div style={{ color: '#64748b' }}># Started at {new Date(selectedJob.created_at).toISOString()}</div>
+                            <br />
+                            <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+                                {formatLog(selectedJob.log)}
+                            </pre>
+                            {selectedJob.status === 'running' && (
+                                <div style={{ display: 'inline-block', width: 8, height: 16, background: '#22c55e', marginLeft: 4, animation: 'blink 1s infinite' }} />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            <style>{`
+                @keyframes blink { 50% { opacity: 0; } }
+            `}</style>
         </div>
     );
+}
+
+function formatLog(log: string) {
+    if (!log) return "Waiting for logs...";
+    try {
+        const parsed = JSON.parse(log);
+        return JSON.stringify(parsed, null, 2);
+    } catch {
+        return log;
+    }
 }

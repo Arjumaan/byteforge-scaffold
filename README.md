@@ -1,78 +1,126 @@
-# ⚡ ByteForge Scaffold
+# ByteForge Scaffold
 
-> A modern, production-ready Web Application Penetration Testing Framework.
+**Enterprise-Grade Automated Penetration Testing Framework**
 
-ByteForge Scaffold is a high-performance, modular framework designed for automated security assessments. It combines the power of **FastAPI**, **React**, and **Celery** to provide a seamless experience from scanning to reporting.
-
----
-
-## 🎨 Premium Features
-
--   **Modern Dashboard**: Glassmorphism UI with real-time statistics.
--   **Automated Scanning**: Integration placeholders for Nuclei, Custom Crawlers, and Active Scanners.
--   **Job Management**: Distributed task queue powered by Celery and Redis.
--   **Security First**: Built-in JWT authentication, RBAC-ready roles, and secure middleware.
--   **Responsive Design**: Fully optimized for all device sizes with a sleek dark mode.
+ByteForge is a comprehensive security suite designed for automated reconnaissance, vulnerability scanning, and reporting. It operates in two modes: a high-performance **CLI** for direct terminal usage and a modern **Web Dashboard** for managing campaigns and visualization.
 
 ---
 
-## 🛠️ Technology Stack
+## 🚀 Features
 
-### Backend
--   **FastAPI**: High-performance Python API framework.
--   **SQLModel**: Elegant database interaction (SQLAlchemy + Pydantic).
--   **Alembic**: Robust database migrations.
--   **Celery & Redis**: Scalable background task processing.
--   **PostgreSQL**: Reliable relational data storage.
+### 🛡️ Core Security Capabilities
 
-### Frontend
--   **React & TypeScript**: Type-safe component architecture.
--   **Vite**: Lightning-fast development and build tooling.
--   **React Query**: Efficient server-state management.
--   **Framer Motion**: Smooth, premium animations.
--   **Lucide React**: Clean and consistent iconography.
+- **Full Spectrum Scanning**: One-click execution of the entire kill chain (Recon $\rightarrow$ Crawl $\rightarrow$ Vulnerability Analysis).
+- **Reconnaissance**: Automated subdomain enumeration using **Subfinder**.
+- **Spidering/Crawling**: Deep web crawling to map assets and endpoints using **Katana**.
+- **Vulnerability Scanning**: CVE and vulnerability detection using **Nuclei** templates.
+- **Active Scanning**: Custom payload injection logic for detecting critical flaws (SQLi, XSS).
+
+### 🖥️ CLI Tool (`byteforge`)
+
+- "Bash-style" cyber security tool.
+- Instant scan execution (e.g., `byteforge scan -t example.com`).
+- Manage targets and view reports directly from the terminal.
+- Supports Windows (`.bat`) and Linux/Mac.
+
+### 🌐 Web Dashboard
+
+- **Targets Management**: Add and organize scopes securely.
+- **Live Job Terminal**: Monitor scans in real-time.
+- **Network Map**: Visual topology of discovered assets.
+- **Findings & Remediation**: AI-assisted remediation suggestions.
+- **Dark/Light Mode**: Beautiful, professional UI.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Installation & Setup
 
-### Option A: Docker (Recommended)
-The fastest way to get started. Ensures all dependencies and infrastructure (Postgres, Redis) are ready.
-```bash
-docker compose up --build
+### Prerequisites
+
+- **Python 3.10+**
+- **Node.js 18+**
+- **Go** (required for Nuclei/Subfinder/Katana engine integration)
+
+### One-Click Setup (Windows)
+
+```powershell
+.\install_system.bat
 ```
 
-### Option B: Local Setup (Non-Docker)
-For those who prefer native installation.
-1. Follow the [Local Setup Guide](./LOCAL_SETUP.md) for detailed instructions.
+This script will:
+
+1. Set up the Python backend environment.
+2. Install all Python dependencies (`FastAPI`, `SQLAlchemy`, etc.).
+3. Install Frontend dependencies (`React`, `Vite`).
+4. Configure the SQLite database.
 
 ---
 
-## 📍 Project Structure
+## 🎮 Usage
 
-```text
-├── backend/            # FastAPI Application
-│   ├── app/            # Core logic, routers, models
-│   ├── alembic/        # DB Migrations
-│   └── tests/          # Pytest suite
-├── frontend/           # React Application
-│   ├── src/            # Components, pages, state
-│   └── public/         # Static assets
-└── docker-compose.yml  # Orchestration
+### Option 1: Web Interface
+
+Start the backend and frontend servers:
+
+```powershell
+.\run_system.bat
+```
+
+- **Dashboard**: Open [http://localhost:5173](http://localhost:5173) in your browser.
+- **Workflow**: Go to `Targets` $\rightarrow$ Click **Full Scan**.
+
+### Option 2: Command Line Interface (CLI)
+
+Use the wrapper script for instant access:
+
+**Scan a Target:**
+
+```powershell
+.\byteforge.bat scan -t example.com --type full_scan
+```
+
+**List Targets:**
+
+```powershell
+.\byteforge.bat targets
+```
+
+**View Help:**
+
+```powershell
+.\byteforge.bat -h
 ```
 
 ---
 
-## 🔒 Access
--   **Frontend**: [http://localhost:5173](http://localhost:5173)
--   **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
--   **Health Check**: [http://localhost:8000/health](http://localhost:8000/health)
+## 📂 Project Structure
+
+```
+ByteForge-Scaffold/
+├── backend/                # Python FastAPI Backend
+│   ├── app/                # Core Application Logic
+│   │   ├── services/       # Security Engines (Nuclei, Recon, Crawl)
+│   │   ├── routers/        # API Endpoints
+│   │   └── models.py       # Database Schemas (Encrypted)
+│   ├── byteforge.db        # Local Database (Ignored in Git)
+│   └── worker.py           # Task Runner (Threaded/Celery)
+├── frontend/               # React TypeScript Frontend
+│   ├── src/                # UI Components & Pages
+│   └── public/             # Static Assets
+├── byteforge.py            # CLI Tool Entry Point
+├── byteforge.bat           # Windows CLI Wrapper
+├── install_system.bat      # Installer Script
+└── run_system.bat          # Launcher Script
+```
 
 ---
 
-## 📝 License
-This project is open-source. See the LICENSE for more details.
+## 🔒 Security & License
+
+**Proprietary Software**
+Copyright (c) 2026 Arjumaan.M. All Rights Reserved.
+
+This software is the confidential and proprietary information of Arjumaan.M. Unauthorized reproduction, distribution, or use is strictly prohibited.
 
 ---
-
-*Made with ❤️ by Arjumaan*
+*Built with ❤️ by ByteForge Team for Advanced Security Testing.*

@@ -1,14 +1,14 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-import os
 from app.db import get_session
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app import models
+from app.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-SECRET = os.getenv("JWT_SECRET", "change-me")
-ALG = os.getenv("JWT_ALG", "HS256")
+SECRET = settings.JWT_SECRET
+ALG = settings.JWT_ALGORITHM
 
 async def get_db() -> AsyncSession:
     async for s in get_session():

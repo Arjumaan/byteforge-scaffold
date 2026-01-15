@@ -10,12 +10,17 @@ router = APIRouter()
 @router.get("/")
 async def list_evidence(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     res = await db.exec(select(models.Evidence))
-    return res.all()
+    evidences = res.all()
+    for e in evidences:
+        e.decrypt_fields()
+    return evidences
 
 @router.post("/")
 async def create_evidence(body: EvidenceCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     ev = models.Evidence(**body.dict())
+    ev.encrypt_fields()
     db.add(ev)
     await db.commit()
     await db.refresh(ev)
+    ev.decrypt_fields()
     return ev

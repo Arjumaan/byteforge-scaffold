@@ -1,19 +1,25 @@
-import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import jwt
-from passlib.context import CryptContext
+import bcrypt
+from app.config import settings
 
-SECRET = os.getenv("JWT_SECRET", "change-me")
-ALG = os.getenv("JWT_ALG", "HS256")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SECRET = settings.JWT_SECRET
+ALG = settings.JWT_ALGORITHM
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hash a password using bcrypt directly (Python 3.13+ compatible)."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(password: str, hashed: str) -> bool:
-    return pwd_context.verify(password, hashed)
+    """Verify a password against its hash."""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
-def create_token(subject: str, expires_minutes: int = 60) -> str:
-    payload = {"sub": subject, "exp": datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)}
+def create_token(subject: str, expires_minutes: int = 30) -> str:
+    """Creates a JWT token with a short expiration (30m) for high security."""
+    payload = {
+        "sub": subject, 
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=expires_minutes),
+        "iat": datetime.now(timezone.utc)
+    }
     return jwt.encode(payload, SECRET, algorithm=ALG)
