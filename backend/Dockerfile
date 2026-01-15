@@ -22,6 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Security Tools
 RUN go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest && \
+    go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest && \
     go install github.com/projectdiscovery/katana/cmd/katana@latest && \
     go install github.com/jaeles-project/gospider@latest
 

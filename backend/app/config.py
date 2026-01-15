@@ -22,7 +22,7 @@ class Settings:
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     
     # Network Security
-    ALLOWED_HOSTS: list = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    ALLOWED_HOSTS: list = os.getenv("ALLOWED_HOSTS", "*").split(",")
     ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 settings = Settings()
