@@ -22,7 +22,7 @@ services:
         sync: false
 
   # Frontend runs as Static Site
-  - type: static
+  - type: static_site
     name: byteforge-ui
     repo: https://github.com/Arjumaan/byteforge-scaffold
     rootDir: frontend
