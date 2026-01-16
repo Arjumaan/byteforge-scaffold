@@ -104,3 +104,46 @@ Once Render finishes deploying:
 4. **Troubleshooting**:
     * **Backend crashing?** Check the **Logs** tab in Render. Ensure `JWT_SECRET` and `ENCRYPTION_KEY` were set correctly.
     * **Database error?** Ensure the `DATABASE_URL` is correct (the blueprint handles this automatically, but check if manual).
+
+---
+
+## 4. Custom Domain Setup
+
+To use your custom domain (`scaffold.byteforge.qzz.io`), you need to configure it in Render and your DNS provider (where you bought the domain).
+
+### A. Frontend (The User-Facing Site)
+
+**Goal:** Users visit `scaffold.byteforge.qzz.io` to see your app.
+
+1. In Render Dashboard, go to **`byteforge-ui`** (Static Site).
+2. Click **Settings** $\rightarrow$ **Custom Domains** $\rightarrow$ **Add Custom Domain**.
+3. Enter: `scaffold.byteforge.qzz.io`.
+4. Render will give you a **CNAME** validation.
+    * **Record Type:** `CNAME`
+    * **Name (Host):** `scaffold` (since it's a subdomain of byteforge.qzz.io)
+    * **Value (Target):** `byteforge-ui.onrender.com` (or similar, Render will provide this).
+5. Add this record in your DNS Provider's dashboard.
+
+### B. Backend (The API)
+
+**Goal:** The frontend sends data to the backend. You can use the default Render URL (`...onrender.com`) or a custom subdomain like `api.scaffold...`.
+
+**Option 1: Use Default URL (Easiest)**
+
+* You don't *need* a custom domain for the backend. The frontend already knows how to talk to `https://byteforge-api.onrender.com`.
+
+**Option 2: Custom Subdomain (Professional)**
+
+1. Go to **`byteforge-api`** (Web Service) $\rightarrow$ **Settings** $\rightarrow$ **Add Custom Domain**.
+2. Enter: `api.scaffold.byteforge.qzz.io`.
+3. Add the **CNAME** record in your DNS provider:
+    * **Name:** `api.scaffold`
+    * **Value:** `byteforge-api.onrender.com`.
+4. **Important:** If you do this, you must update the `VITE_API_URL` in your **Frontend's Environment Variables** to this new URL.
+
+### C. Database
+
+**Goal:** Keep it secure.
+
+* **Do NOT** add a public custom domain to your database.
+* The backend connects internally (securely). Exposing it to the public internet on a custom domain increases security risks unnecessarily.
