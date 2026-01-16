@@ -22,13 +22,14 @@ services:
         sync: false
 
   # Frontend runs as Static Site
-  - type: static_site
+  - type: web
     name: byteforge-ui
+    runtime: static
     repo: https://github.com/Arjumaan/byteforge-scaffold
     rootDir: frontend
     branch: main
     buildCommand: npm install && npm run build
-    publishDir: dist
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
