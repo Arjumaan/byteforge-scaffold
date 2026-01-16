@@ -9,7 +9,7 @@ services:
     branch: main
     envVars:
       - key: PORT
-        value: 10000
+        value: 8000
       - key: ALLOWED_HOSTS
         value: "*"
       - key: DATABASE_URL
