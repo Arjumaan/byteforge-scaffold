@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     wget \
-    libpQ-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Go (for security tools)
