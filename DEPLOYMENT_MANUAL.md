@@ -78,4 +78,29 @@ Yes, you can use MySQL (e.g., from Aiven, PlanetScale, or Azure).
 5. Set `DATABASE_URL` to this MySQL string.
     * *Example:* `mysql+aiomysql://avnadmin:password123@mysql-svc.aivencloud.com:12345/defaultdb`
 
-**Note:** Both databases work seamlessly with ByteForge.
+---
+
+## 3. Verification & Troubleshooting
+
+Once Render finishes deploying:
+
+1. **Check Status**: You should see three "Green" services in your Dashboard.
+    * `byteforge-db` (Database)
+    * `byteforge-api` (Backend)
+    * `byteforge-ui` (Frontend)
+
+2. **Verify Backend**:
+    * Click on **`byteforge-api`** in the dashboard.
+    * Find the **URL** (e.g., `https://byteforge-api.onrender.com`).
+    * Visit `https://byteforge-api.onrender.com/health` in your browser.
+    * You should see: `{"status": "ok", "service": "byteforge-api"}`.
+
+3. **Verify Frontend**:
+    * Click on **`byteforge-ui`**.
+    * Visit the site URL.
+    * Open the **Developer Tools (F12) -> Console**.
+    * Ensure there are no errors connecting to the backend.
+
+4. **Troubleshooting**:
+    * **Backend crashing?** Check the **Logs** tab in Render. Ensure `JWT_SECRET` and `ENCRYPTION_KEY` were set correctly.
+    * **Database error?** Ensure the `DATABASE_URL` is correct (the blueprint handles this automatically, but check if manual).
