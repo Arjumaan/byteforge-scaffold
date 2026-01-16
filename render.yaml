@@ -1,5 +1,5 @@
 services:
-  # Backend API runs in Docker container (with Go tools installed)
+  # Backend API runs in Docker container
   - type: web
     name: byteforge-api
     runtime: docker
@@ -12,11 +12,14 @@ services:
         value: 10000
       - key: ALLOWED_HOSTS
         value: "*"
-    # For persistence, add a Disk or use external Postgres
-    # disk:
-    #   name: byteforge-data
-    #   mountPath: /app/data
-    #   sizeGB: 1
+      - key: DATABASE_URL
+        fromDatabase:
+          name: byteforge-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
 
   # Frontend runs as Static Site
   - type: static
@@ -30,3 +33,15 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: byteforge-api
+          envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: byteforge-db
+    databaseName: byteforge
+    user: byteforge
+    plan: free # Optional: defaults to the lowest tier, but 'free' is explicit if available for DBs (Render Free Tier limits apply)

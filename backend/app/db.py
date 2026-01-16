@@ -8,11 +8,14 @@ from sqlalchemy.orm import sessionmaker
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./byteforge.db")
 
 # Handle PostgreSQL URL formats if provided
-if DATABASE_URL.startswith("postgresql"):
+# Handle PostgreSQL URL formats if provided
+if DATABASE_URL.startswith("postgres"):
     if DATABASE_URL.startswith("postgresql+psycopg2"):
         DATABASE_URL = DATABASE_URL.replace("postgresql+psycopg2", "postgresql+asyncpg")
     elif DATABASE_URL.startswith("postgresql://"):
         DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+    elif DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://")
 
 # SQLite requires special connect_args
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}

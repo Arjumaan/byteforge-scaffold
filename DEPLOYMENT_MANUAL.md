@@ -1,6 +1,24 @@
 # Deployment & Database Guide
 
-## 1. Separate Deployment on Render
+## 1. Automatic Deployment using Blueprint (`render.yaml`)
+
+**Recommended:** This method uses the `render.yaml` file to automatically set up your Frontend, Backend, and Database in one go.
+
+1. In the [Render Dashboard](https://dashboard.render.com/), click **New +** $\rightarrow$ **Blueprint**.
+2. Connect your repository (**`Arjumaan/byteforge-scaffold`**).
+3. Render will detect the `render.yaml` file and propose:
+    * **`byteforge-api`**: The Backend Service.
+    * **`byteforge-ui`**: The Frontend Static Site.
+    * **`byteforge-db`**: The PostgreSQL Database.
+4. Click **Apply**.
+    * Render will automatically inject the `DATABASE_URL` into the backend.
+    * Render will automatically inject the `VITE_API_URL` into the frontend.
+
+*Note: In the blueprint, the Frontend and Backend are defined as separate "components" (services) but managed together. This is the correct way to handle a full-stack app.*
+
+---
+
+## 2. Manual Deployment (Separate Services)
 
 If you prefer to setup services manually (instead of using the Blueprint):
 
